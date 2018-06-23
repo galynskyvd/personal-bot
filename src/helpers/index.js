@@ -19,6 +19,9 @@ const methods = {
 		} else {
 			return listCommands.some(item => item === phrase);
 		}
+	},
+	getRandomItems(list) {
+		return list.map((a) => [Math.random(), a]).sort((a, b) => a[0] - b[0]).map((a) => a[1]).slice(0, 2);
 	}
 };
 

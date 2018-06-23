@@ -20,7 +20,7 @@ app.listen(port, () => {
 	console.log(`Express server is listening on ${port}`);
 });
 
-bot.on('message', (msg) => {
+bot.on('message', async (msg) => {
 	const {
 		from: {id: userId},
 		text: command
@@ -28,20 +28,23 @@ bot.on('message', (msg) => {
 	const {
 		response,
 		options = {}
-	} = getResponse(command);
+	} = await getResponse(command);
 
 	bot.sendMessage(userId, response, options);
 });
 
-bot.on('callback_query', (msg) => {
+bot.on('callback_query', async (msg) => {
 	const {
 		id: chatId,
 		from: {id: userId},
 		data: command
 	} = msg;
-	const {response, options = {}} = getResponse(command);
+	const {
+		response,
+		options = {}
+	} = await getResponse(command);
 
 	bot.sendMessage(userId, response, options);
 
-	bot.answerCallbackQuery(chatId, ``, true);
+	bot.answerCallbackQuery(chatId, '', true);
 });
