@@ -1,50 +1,76 @@
+const API = require('../api');
 const Helpers = require('../helpers');
+const {users: {admin}} = require('../config/options.json');
 const {commands, messages, buttons} = require('../constants');
 
-module.exports = async (command) => {
-	if (Helpers.checkCommand(command, commands.PROJECTS)) {
-		const list = Helpers.getRandomItems(buttons);
+module.exports = async (params) => {
+	const {
+		text: command,
+		from: {id: userId}
+	} = params;
+	const isAdmin = Helpers.checkAccess(userId, admin);
 
-		return {
-			response: `Сейчас у меня 2 проекта:\n<b>Futcamp</b> - Система умного дома\n<b>Ladnosvet</b> - Интернет-магазин светильников и лампочек`,
-			options: {
-				...Helpers.getButtons(list),
-				parse_mode: 'HTML'
-			}
-		};
-	} else if (Helpers.checkCommand(command, commands.START)) {
-		const list = Helpers.getRandomItems(buttons);
+	if (Helpers.checkCommand(command, commands.START)) {
+		await API.addVisitors(userId);
 
 		return {
 			response: messages.START,
 			options: {
-				...Helpers.getButtons(list),
+				...Helpers.getNavigation(buttons.NAVIGATION),
 				parse_mode: 'HTML'
 			}
 		};
-	} else if (Helpers.checkCommand(command, commands.DOING)) {
-		const list = Helpers.getRandomItems(buttons);
+	} else if (Helpers.checkCommand(command, commands.ABOUT)) {
+		return {
+			response: messages.ABOUT,
+			options: {
+				parse_mode: 'HTML'
+			}
+		};
+	} else if (Helpers.checkCommand(command, commands.GOALS)) {
+		return {
+			response: messages.GOALS
+		};
+	} else if (Helpers.checkCommand(command, commands.PROJECTS)) {
+		const {data: {projects}} = await API.getProjects();
+		const convertProjects = projects.map(({name, site, description}, index) => {
+			return `${index + 1}. <a href='${site}'>${name}</a> - ${description}\n`;
+		}).join('');
+		const result = `Мои проекты:\n${convertProjects}`;
 
 		return {
-			response: 'На данный момент я работаю Front-end разработчиком',
-			options: Helpers.getButtons(list)
+			response: result,
+			options: {
+				parse_mode: 'HTML'
+			}
 		};
 	} else if (Helpers.checkCommand(command, commands.CONTACTS)) {
-		const list = Helpers.getRandomItems(buttons);
+		return {
+			response: messages.CONTACTS,
+			options: {
+				parse_mode: 'HTML'
+			}
+		};
+	} else if (Helpers.checkCommand(command, commands.BLOG)) {
+		return {
+			response: messages.BLOG,
+			options: {
+				parse_mode: 'HTML'
+			}
+		};
+	} else if (Helpers.checkCommand(command, commands.STATISTICS) && isAdmin) {
+		const {data: {today, all}} = await API.getVisitors();
+		const result = `Статистика:\nСегодня: <b>${today.length}</b> человек\nВсего: <b>${all.length}</b> человек`;
 
 		return {
-			response: `Написать можно <a href='tg://user?id=424572788'>сюда</a>`,
+			response: result,
 			options: {
-				...Helpers.getButtons(list),
 				parse_mode: 'HTML'
 			}
 		};
 	} else {
-		const list = Helpers.getRandomItemInArray(buttons);
-
 		return {
-			response: messages.NOT_FOUND,
-			options: Helpers.getButtons(list)
+			response: messages.NOT_FOUND
 		};
 	}
 };

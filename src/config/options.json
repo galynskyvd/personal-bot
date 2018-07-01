@@ -3,5 +3,11 @@
     "token": "",
     "host": "",
     "port": ""
+  },
+  "users": {
+    "admin": ""
+  },
+  "api": {
+    "host": ""
   }
 }

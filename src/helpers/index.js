@@ -1,18 +1,13 @@
 const methods = {
-	getButtons(list) {
+	getNavigation(list) {
 		return {
 			reply_markup: JSON.stringify({
-				inline_keyboard: [
-					list.map(({title, value}) => ({
-						text: title,
-						callback_data: value
-					}))
-				]
+				keyboard: [[list[0]], [list[1], list[2]], [list[3], list[4]]]
 			})
 		}
 	},
 	checkCommand(command, listCommands) {
-		const phrase = command.trim().toLowerCase();
+		const phrase = this.removeInvalidChars(command);
 
 		if (typeof listCommands === 'string') {
 			return phrase === listCommands;
@@ -20,8 +15,15 @@ const methods = {
 			return listCommands.some(item => item === phrase);
 		}
 	},
-	getRandomItems(list) {
-		return list.map((a) => [Math.random(), a]).sort((a, b) => a[0] - b[0]).map((a) => a[1]).slice(0, 2);
+	removeInvalidChars(command) {
+		return command.replace(/[\uD800-\uDFFF]./g, '').trim().toLowerCase();
+	},
+	checkAccess(userId, adminId) {
+		if (typeof adminId === 'number') {
+			return userId === adminId;
+		} else {
+			return adminId.some(item => item === userId);
+		}
 	}
 };
 

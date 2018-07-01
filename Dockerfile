@@ -1,0 +1,9 @@
+FROM node:latest
+
+WORKDIR /app
+COPY package.json ./
+RUN npm install
+COPY src /app
+EXPOSE 3001
+
+CMD ["node", "app.js"]

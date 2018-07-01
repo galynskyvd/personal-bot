@@ -22,29 +22,12 @@ app.listen(port, () => {
 
 bot.on('message', async (msg) => {
 	const {
-		from: {id: userId},
-		text: command
+		from: {id: userId}
 	} = msg;
 	const {
 		response,
 		options = {}
-	} = await getResponse(command);
+	} = await getResponse(msg);
 
 	bot.sendMessage(userId, response, options);
-});
-
-bot.on('callback_query', async (msg) => {
-	const {
-		id: chatId,
-		from: {id: userId},
-		data: command
-	} = msg;
-	const {
-		response,
-		options = {}
-	} = await getResponse(command);
-
-	bot.sendMessage(userId, response, options);
-
-	bot.answerCallbackQuery(chatId, '', true);
 });
